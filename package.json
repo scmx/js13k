@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node reload.js",
+    "start": "node server.js"
+  },
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0",
+    "jszip": "^3.10.1",
+    "terser": "^5.31.6"
+  }
+}
