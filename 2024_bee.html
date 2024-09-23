@@ -17,12 +17,27 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🐝</text></svg>"
     />
-    <link
-      rel="manifest"
-      href="data:application/manifest+json,%7B%22name%22%3A%22Bee%20%2F%20B%20%2F%2013%20a%20js13k%20unfinished%20game%20by%20%40scmx%22%2C%22short_name%22%3A%22Bee%22%2C%22start_url%22%3A%22%2F%22%2C%22background_color%22%3A%22yellow%22%2C%22theme_color%22%3A%22green%22%2C%22display%22%3A%22fullscreen%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'48'%20height%3D'48'%20viewBox%3D'0%200%2016%2016'%3E%3Ctext%20x%3D'0'%20y%3D'14'%3E%F0%9F%90%9D%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22type%22%3A%22image%2Fpng%22%2C%22sizes%22%3A%2248x48%22%7D%5D%7D"
-    />
-
-    <title></title>
+    <link rel="manifest" />
+    <script>
+      document.querySelector("link[rel=manifest]").href =
+        `data:application/manifest+json,${encodeURIComponent(
+          JSON.stringify({
+            name: "Bee / B / 13 a js13k unfinished game by @scmx",
+            short_name: "Bee",
+            start_url: location.href,
+            background_color: "yellow",
+            theme_color: "green",
+            display: "fullscreen",
+            icons: [
+              {
+                src: document.querySelector("link[rel=icon]").href,
+                type: "image/png",
+                sizes: "48x48",
+              },
+            ],
+          }),
+        )}`;
+    </script>
   </head>
   <body>
     <main id="main">
