@@ -6,7 +6,7 @@ import { createServer } from "node:http";
 import { resolve } from "node:path";
 import { minify } from "html-minifier-terser";
 
-const port = process.env.PORT || 8002;
+const port = Number(process.env.PORT || 8002);
 const host = "0.0.0.0";
 
 // Custom live reload after build solution
@@ -34,6 +34,10 @@ const server = createServer((req, res) => {
   serveGameSource(req, res);
 });
 
+/**
+ * @param {Req} req
+ * @param {Res} res
+ */
 function handleEventStream(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -56,6 +60,10 @@ function handleEventStream(req, res) {
   });
 }
 
+/**
+ * @param {Req} _req
+ * @param {Res} res
+ */
 async function listGames(_req, res) {
   res.writeHead(200, {
     "Content-Type": "text/html",
@@ -78,8 +86,14 @@ const liveReloadScript = `
     </script>
 `;
 
+/**
+ * @param {Req} req
+ * @param {Res} res
+ */
 async function serveGameSource(req, res) {
-  const game = req.url.slice(1);
+  const url = req.url;
+  if (!url) throw new Error(`Error parsing url`);
+  const game = url.slice(1);
   const sourceFile = `${game}.html`;
   try {
     var data = await readFile(sourceFile, { encoding: "utf-8" });
@@ -98,6 +112,7 @@ async function serveGameSource(req, res) {
 
 mkdirSync("dist", { recursive: true });
 
+/** @param {string} name */
 async function watchSource(name) {
   log(`Watching ${name}`);
   const indexPath = resolve(`${name}.html`);
@@ -127,6 +142,7 @@ async function watchSource(name) {
   }
 }
 
+/** @param {string} name */
 async function buildSource(name) {
   const indexPath = resolve(`./${name}.html`);
   const zipPath = resolve(`./dist/${name}.zip`);
@@ -189,10 +205,14 @@ async function minifyHtml(data) {
 server.listen(port, host, onListen);
 
 function onListen() {
-  const { address, port } = server.address();
-  log(`Server is running on http://${address}:${port}`);
+  const info = server.address();
+  if (info && typeof info !== "string") {
+    const { address, port } = info;
+    log(`Server is running on http://${address}:${port}`);
+  }
 }
 
+/** @param {string} message */
 function log(message) {
   const now = new Date().toISOString().slice(11, 23);
   console.log(`${now} ${message}`);
