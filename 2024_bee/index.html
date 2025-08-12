@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Bee js13k 2024</title>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🐝</text></svg>"
+    />
+    <link rel="manifest" />
+    <script>
+      document.querySelector("link[rel=manifest]").href =
+        `data:application/manifest+json,${encodeURIComponent(
+          JSON.stringify({
+            name: "Bee / B / 13 a js13k unfinished game by @scmx",
+            short_name: "Bee",
+            start_url: location.href,
+            background_color: "yellow",
+            theme_color: "green",
+            display: "fullscreen",
+            icons: [
+              {
+                src: document.querySelector("link[rel=icon]").href,
+                type: "image/png",
+                sizes: "48x48",
+              },
+            ],
+          }),
+        )}`;
+    </script>
+  </head>
+  <body>
+    <main id="main">
+      <canvas id="canvas"></canvas>
+      <dialog id="how_to_play">
+        <h1>Bee - A js13k Game</h1>
+        <a href="https://github.com/scmx/js13k" target="_blank">
+          View Source and Play latest version
+        </a>
+
+        <p>
+          Guide your bee back to the hive in this minimalist game! Tap and hold
+          above the bee to fly higher, but watch out—gravity and tiredness will
+          pull you down. Collect nectar to stay in the air, but avoid flowers
+          with 13 petals—they’re empty or poisonous! If you run out of nectar,
+          rest on the ground to recharge, but be mindful of lost time. Can you
+          make it back to the beehive safely?
+        </p>
+        <p></p>
+        <div class="actions">
+          <button type="submit" onclick="how_to_play.close()">PLAY</button>
+        </div>
+      </dialog>
+      <button
+        class="info"
+        type="button"
+        aria-label="Info"
+        onclick="how_to_play.showModal()"
+      >
+        &#9432;
+      </button>
+    </main>
+    <style>
+      html {
+        height: 100%;
+        background: #333;
+        user-select: none;
+      }
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      main {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      canvas {
+        display: block;
+      }
+      button.info {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        display: block;
+        width: 2rem;
+        height: 2rem;
+        line-height: 0;
+        margin: 0;
+        padding: 0;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 2rem;
+        border: 1px solid white;
+        box-sizing: content-box;
+        border-radius: 100%;
+        background: white;
+      }
+      dialog {
+        background: rgba(255, 255, 255, 0.3);
+        max-width: 60%;
+        font-family: sans-serif;
+        border-radius: 20px;
+        text-align: center;
+      }
+      dialog button {
+        margin: 1rem;
+        padding: 0 2rem;
+        font-size: 2rem;
+        font-weight: bold;
+        background: yellow;
+        color: black;
+        border: 2px solid black;
+        border-radius: 10px;
+      }
+      h1 {
+        text-align: center;
+        margin: 0;
+      }
+      .actions {
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

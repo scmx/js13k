@@ -14,11 +14,10 @@ const clients = [];
 
 const games = [];
 readdirSync(".", { withFileTypes: true }).forEach((dirent) => {
-  if (dirent.isDirectory()) return;
-  if (!dirent.name.endsWith(".html")) return;
-  const name = dirent.name.replace(".html", "");
-  games.push(name);
-  watchSource(name);
+  if (!dirent.isDirectory()) return;
+  if (!/^\d{4}_\w+$/.test(dirent.name)) return;
+  games.push(dirent.name);
+  watchSource(dirent.name);
 });
 
 const server = createServer((req, res) => {
@@ -114,12 +113,12 @@ mkdirSync("dist", { recursive: true });
 /** @param {string} name */
 async function watchSource(name) {
   log(`Watching ${name}`);
-  const indexPath = resolve(`${name}.html`);
+  const folderPath = `./${name}`;
   try {
-    var watcher = watch(indexPath);
+    var watcher = watch(folderPath);
   } catch (err) {
-    log(`Failed to watch ${indexPath}`);
-    throw new Error(`Failed to watch ${indexPath}`, { cause: err });
+    log(`Failed to watch ${folderPath}`);
+    throw new Error(`Failed to watch ${folderPath}`, { cause: err });
   }
   try {
     for await (const event of watcher) {
@@ -136,36 +135,42 @@ async function watchSource(name) {
       }
     }
   } catch (err) {
-    log(`Failed to watch ${indexPath}`);
+    log(`Failed to watch ${folderPath}`);
   }
 }
 
-let buildTimeout;
+let timeouts = new Map();
 /** @param {string} name */
 async function buildSourceDebounced(name) {
-  clearTimeout(buildTimeout);
-  buildTimeout = setTimeout(() => {
-    log(`Rebuilding ${name}`);
-    buildSource(name);
-  }, 200);
+  clearTimeout(timeouts.get(name));
+  timeouts.set(
+    name,
+    setTimeout(() => buildSource(name), 200),
+  );
 }
 
 /** @param {string} name */
 async function buildSource(name) {
+  log(`Rebuilding ${name}`);
   const indexPath = resolve(`./${name}.html`);
   const zipPath = resolve(`./dist/${name}.zip`);
-
-  try {
-    var data = await readFile(indexPath, { encoding: "utf-8" });
-  } catch (err) {
-    log(`Failed to read ${indexPath}`);
-    throw new Error(`Failed to read ${indexPath}`, { cause: err });
-  }
 
   clients.forEach((client) => client.write("data: reload\n\n"));
 
   const zip = new JSZip();
-  zip.file("index.html", data);
+  for (const dirent of readdirSync(`./${name}`, { withFileTypes: true })) {
+    if (dirent.isDirectory()) return;
+
+    const filePath = `./${name}/${dirent.name}`;
+    try {
+      var data = await readFile(filePath, { encoding: "utf-8" });
+    } catch (err) {
+      log(`Failed to read ${filePath}`);
+      throw new Error(`Failed to read ${filePath}`, { cause: err });
+    }
+    zip.file(dirent.name, data);
+  }
+
   try {
     var content = await zip.generateAsync({
       type: "nodebuffer",
