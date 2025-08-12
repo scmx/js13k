@@ -4,7 +4,6 @@ import { readFile, watch, writeFile } from "node:fs/promises";
 import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
-import { minify } from "html-minifier-terser";
 
 const port = Number(process.env.PORT || 8002);
 const host = "0.0.0.0";
@@ -156,15 +155,8 @@ async function buildSource(name) {
 
   clients.forEach((client) => client.write("data: reload\n\n"));
 
-  try {
-    var minified = await minifyHtml(data);
-  } catch (err) {
-    log(`Failed to minify ${indexPath}`);
-    throw new Error("Failed to minify index.html", { cause: err });
-  }
-
   const zip = new JSZip();
-  zip.file("index.html", minified);
+  zip.file("index.html", data);
   try {
     var content = await zip.generateAsync({
       type: "nodebuffer",
@@ -190,16 +182,7 @@ async function buildSource(name) {
   }
 
   const size = stats.size / 1024;
-  log(`dist.zip ${size.toFixed(1)}kB`);
-}
-
-async function minifyHtml(data) {
-  return await minify(data, {
-    collapseWhitespace: true,
-    removeComments: true,
-    minifyCSS: true,
-    minifyJS: true,
-  });
+  log(`dist/${name}.zip ${size.toFixed(1)}kB`);
 }
 
 server.listen(port, host, onListen);
