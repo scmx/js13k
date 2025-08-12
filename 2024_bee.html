@@ -93,7 +93,6 @@
       }
       canvas {
         display: block;
-        max-width: 1200px;
       }
       button.info {
         position: absolute;
@@ -140,7 +139,7 @@
       }
     </style>
     <script type="module">
-      const g = 9.81;
+      const g = 0.00981;
       class Bee {
         #nectar = 1;
         radius = 5;
@@ -151,25 +150,28 @@
           this.poison = 0;
         }
         draw(ctx, scale) {
+          const { x, y } = this.pos;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           ctx.beginPath();
-          ctx.moveTo(this.pos.x - 25, this.pos.y);
+          ctx.moveTo(w * (x - 0.02), h * y);
           ctx.bezierCurveTo(
-            this.pos.x + 25,
-            this.pos.y - 50,
-            this.pos.x + 25,
-            this.pos.y + 50,
-            this.pos.x - 25,
-            this.pos.y,
+            w * (x + 0.02),
+            h * (y - 0.04),
+            w * (x + 0.02),
+            h * (y + 0.04),
+            w * (x - 0.02),
+            h * y,
           );
           // draw a black stripe vertical
-          ctx.moveTo(this.pos.x, this.pos.y - 15);
-          ctx.lineTo(this.pos.x, this.pos.y + 15);
-          ctx.moveTo(this.pos.x - 10, this.pos.y - 11);
-          ctx.lineTo(this.pos.x - 10, this.pos.y + 11);
-          ctx.moveTo(this.pos.x + 7, this.pos.y - 10);
-          ctx.lineTo(this.pos.x + 7, this.pos.y + 10);
-          ctx.moveTo(this.pos.x + 9, this.pos.y - 9);
-          ctx.lineTo(this.pos.x + 9, this.pos.y + 9);
+          ctx.moveTo(w * x, h * (y - 0.01));
+          ctx.lineTo(w * x, h * (y + 0.01));
+          ctx.moveTo(w * (x - 0.01), h * (y - 0.01));
+          ctx.lineTo(w * (x - 0.01), h * (y + 0.01));
+          ctx.moveTo(w * (x + 0.01), h * (y - 0.01));
+          ctx.lineTo(w * (x + 0.01), h * (y + 0.01));
+          ctx.moveTo(w * (x + 0.01), h * (y - 0.01));
+          ctx.lineTo(w * (x + 0.01), h * (y + 0.01));
           ctx.closePath();
           ctx.lineWidth = 3;
           ctx.strokeStyle = "black";
@@ -177,8 +179,9 @@
           ctx.fill();
           ctx.stroke();
 
+          // eye
           ctx.beginPath();
-          ctx.arc(this.pos.x + 8, this.pos.y + 3, 4, 0, Math.PI * 2);
+          ctx.arc(w * (x + 0.01), h * (y + 0.005), 4 * scale, 0, Math.PI * 2);
           ctx.closePath();
           ctx.fillStyle = "white";
           ctx.fill();
@@ -188,45 +191,45 @@
           // wings
           ctx.beginPath();
           if (this.game.distance % 1 > 0.5) {
-            ctx.moveTo(this.pos.x - 5, this.pos.y - 11);
+            ctx.moveTo(w * (x - 0.005), h * (y - 0.01));
             ctx.bezierCurveTo(
-              this.pos.x - 25,
-              this.pos.y - 10,
-              this.pos.x - 35,
-              this.pos.y - 10,
-              this.pos.x - 35,
-              this.pos.y,
+              w * (x - 0.02),
+              h * (y - 0.01),
+              w * (x - 0.03),
+              h * (y - 0.01),
+              w * (x - 0.03),
+              h * y,
             );
             // other wing
-            ctx.moveTo(this.pos.x, this.pos.y - 8);
+            ctx.moveTo(w * x, h * (y - 0.01));
             ctx.bezierCurveTo(
-              this.pos.x - 20,
-              this.pos.y + 13,
-              this.pos.x - 30,
-              this.pos.y + 13,
-              this.pos.x - 30,
-              this.pos.y + 3,
+              w * (x - 0.02),
+              h * (y + 0.01),
+              w * (x - 0.03),
+              h * (y + 0.01),
+              w * (x - 0.03),
+              h * (y + 0.005),
             );
           } else {
             // offset wings to animate
-            ctx.moveTo(this.pos.x - 5, this.pos.y - 11);
+            ctx.moveTo(w * (x - 0.005), h * (y - 0.01));
             ctx.bezierCurveTo(
-              this.pos.x - 25,
-              this.pos.y + 10,
-              this.pos.x - 35,
-              this.pos.y - 10,
-              this.pos.x - 35,
-              this.pos.y,
+              w * (x - 0.02),
+              h * (y + 0.01),
+              w * (x - 0.03),
+              h * (y - 0.01),
+              w * (x - 0.03),
+              h * y,
             );
             // other wing
-            ctx.moveTo(this.pos.x, this.pos.y - 8);
+            ctx.moveTo(x, y - 8);
             ctx.bezierCurveTo(
-              this.pos.x - 20,
-              this.pos.y + 33,
-              this.pos.x - 30,
-              this.pos.y + 13,
-              this.pos.x - 30,
-              this.pos.y + 3,
+              w * (x - 0.02),
+              h * (y + 0.03),
+              w * (x - 0.03),
+              h * (y + 0.01),
+              w * (x - 0.03),
+              h * (y + 0.005),
             );
           }
           ctx.closePath();
@@ -234,16 +237,19 @@
           ctx.fill();
         }
         update(delta) {
+          const { x, y } = this.pos;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           this.dir.y = 0;
           if (delta.pointers.size && this.nectar > 0.001) {
             const pointer = [...delta.pointers.values()].sort(
               (a, b) => b.isPrimary - a.isPrimary,
             )?.[0];
             if (!pointer) throw new Error("No pointer");
-            if (pointer.y > this.pos.y) {
-              this.dir.y = 10;
-            } else if (pointer.y < this.pos.y) {
-              this.dir.y = -30;
+            if (pointer.y > y) {
+              this.dir.y = 0.01;
+            } else if (pointer.y < y) {
+              this.dir.y = -0.3;
             } else {
               this.dir.y = 0;
             }
@@ -285,11 +291,14 @@
           this.drawBud(ctx, scale);
         }
         drawStem(ctx, scale) {
+          const { x, y } = this.pos;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           ctx.beginPath();
-          ctx.moveTo(this.pos.x - 10, this.pos.y);
-          ctx.lineTo(this.pos.x - 10, canvas.height);
-          ctx.lineTo(this.pos.x + 10, canvas.height);
-          ctx.lineTo(this.pos.x + 10, this.pos.y);
+          ctx.moveTo(w * (x - 0.01), h * y);
+          ctx.lineTo(w * (x - 0.01), h);
+          ctx.lineTo(w * (x + 0.01), h);
+          ctx.lineTo(w * (x + 0.01), h * y);
           ctx.closePath();
           ctx.strokeStyle = "black";
           ctx.lineWidth = 4;
@@ -298,15 +307,18 @@
           ctx.stroke();
         }
         drawPetals(ctx, scale) {
+          const { x, y } = this.pos;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           const inner = [];
           const outer = [];
           for (let i = 0; i < this.petals; i++) {
             const angle = (Math.PI * 2 * i) / this.petals;
-            const x = this.pos.x + Math.cos(angle) * 25;
-            const y = this.pos.y + Math.sin(angle) * 25;
-            inner[i] = { x, y };
-            const x2 = this.pos.x + Math.cos(angle) * 150;
-            const y2 = this.pos.y + Math.sin(angle) * 150;
+            const x1 = w * x + Math.cos(angle) * 0.02 * w;
+            const y1 = h * y + Math.sin(angle) * 0.02 * w;
+            inner[i] = { x: x1, y: y1 };
+            const x2 = w * x + Math.cos(angle) * 0.125 * w;
+            const y2 = h * y + Math.sin(angle) * 0.125 * w;
             outer[i] = { x: x2, y: y2 };
           }
           for (let i = 0; i < this.petals; i++) {
@@ -321,6 +333,7 @@
               inner[(i + this.petals) % this.petals].y,
             );
             ctx.closePath();
+            ctx.lineWidth = 4 * scale;
             ctx.strokeStyle = "black";
             ctx.stroke();
             if (this.poisonous) {
@@ -332,30 +345,35 @@
           }
         }
         drawBud(ctx, scale) {
+          const { x, y } = this.pos;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           ctx.beginPath();
-          ctx.arc(this.pos.x, this.pos.y, this.budRadius, 0, Math.PI * 2);
+          ctx.arc(w * x, h * y, scale * this.budRadius, 0, Math.PI * 2);
           ctx.closePath();
           ctx.strokeStyle = "black";
-          ctx.lineWidth = 4;
+          ctx.lineWidth = 4 * scale;
           ctx.fillStyle = `hsl(60, 100%, ${this.nectar * 50}%)`;
           ctx.fill();
           ctx.stroke();
-          if (this.pos.x > canvas.width * 0.5) return;
+          if (x > 0.5) return;
           // draw number of petals in middle of bud
           ctx.font = "24px serif";
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(this.petals, this.pos.x, this.pos.y);
+          ctx.fillText(this.petals, x, y);
         }
         drawLeaves(ctx, scale) {
-          const x = this.pos.x;
-          const y = canvas.height * 0.5 + this.pos.y * 0.6;
+          const { x } = this.pos;
+          const y = 0.5 + this.pos.y * 0.6;
+          const w = ctx.canvas.width;
+          const h = ctx.canvas.height;
           ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.moveTo(x - 50, y - 50);
-          ctx.lineTo(x, y + 50);
-          ctx.lineTo(x, y);
+          ctx.moveTo(w * x, h * y);
+          ctx.moveTo(w * (x - 0.04), h * (y - 0.04));
+          ctx.lineTo(w * x, h * y + 0.04);
+          ctx.lineTo(w * x, h * y);
           ctx.closePath();
           ctx.strokeStyle = "black";
           ctx.lineWidth = 4;
@@ -364,27 +382,41 @@
           ctx.fill();
 
           ctx.beginPath();
-          ctx.moveTo(x + 50, y - 50);
-          ctx.bezierCurveTo(x + 50, y - 50, x + 50, y + 25, x, y + 10);
-          ctx.moveTo(x + 50, y - 50);
-          ctx.bezierCurveTo(x + 50, y + 50, x + 50, y + 25, x, y + 10);
+          ctx.moveTo(w * (x + 0.04), h * (y - 0.04));
+          ctx.bezierCurveTo(
+            w * (x + 0.04),
+            h * (y - 0.04),
+            w * (x + 0.04),
+            h * (y + 0.02),
+            w * x,
+            h * (y + 0.01),
+          );
+          ctx.moveTo(w * (x + 0.04), h * (y - 0.04));
+          ctx.bezierCurveTo(
+            w * (x + 0.04),
+            h * (y + 0.04),
+            w * (x + 0.04),
+            h * (y + 0.02),
+            w * x,
+            h * (y + 0.01),
+          );
           ctx.closePath();
           ctx.strokeStyle = "black";
-          ctx.lineWidth = 4;
+          ctx.lineWidth = 4 * scale;
           ctx.stroke();
           ctx.fillStyle = "green";
           ctx.fill();
 
           // leaves
           //ctx.beginPath();
-          //ctx.moveTo(this.pos.x, this.pos.y);
+          //ctx.moveTo(x, y);
           //ctx.bezierCurveTo(
-          //  this.pos.x + 50,
-          //  this.pos.y - 50,
-          //  this.pos.x + 50,
-          //  this.pos.y + 50,
-          //  this.pos.x,
-          //  this.pos.y,
+          //  x + 50,
+          //  y - 50,
+          //  x + 50,
+          //  y + 50,
+          //  x,
+          //  y,
           //);
           //ctx.closePath();
           //ctx.strokeStyle = "black";
@@ -456,14 +488,14 @@
         constructor() {
           this.bee = new Bee({
             game: this,
-            pos: { x: canvas.width * 0.1, y: canvas.height * 0.5 },
+            pos: { x: 0.1, y: 0.5 },
             dir: { x: 0, y: 0 },
           });
           this.flowers = new Pool({
             items: [
               new Flower({ game: this }).start({
-                pos: { x: canvas.width * 0.95, y: canvas.height * 0.5 },
-                dir: { x: -20, y: 0 },
+                pos: { x: 0.95, y: 0.5 },
+                dir: { x: -0.01, y: 0 },
               }),
             ],
           });
@@ -506,8 +538,8 @@
           if (this.flowerTimer > this.flowerInterval) {
             const newFlower = this.flowers.getFree();
             newFlower?.start({
-              pos: { x: canvas.width * 1.1, y: canvas.height * 0.5 },
-              dir: { x: -20, y: 0 },
+              pos: { x: 1.1, y: 0.5 },
+              dir: { x: -0.01, y: 0 },
             });
             this.flowerTimer = 0;
             this.flowerTimer = 0;
@@ -621,9 +653,7 @@
         requestAnimationFrame(animate);
       }
       requestAnimationFrame(animate);
-        how_to_play.showModal();
+      how_to_play.showModal();
     </script>
   </body>
 </html>
-
-
