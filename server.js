@@ -150,7 +150,11 @@ async function buildSource(name) {
   const zip = new JSZip();
   zip.file("index.html", minified);
   try {
-    var content = await zip.generateAsync({ type: "nodebuffer" });
+    var content = await zip.generateAsync({
+      type: "nodebuffer",
+      compression: "DEFLATE",
+      compressionOptions: { level: 9 /* 1 best speed - 9 best compression */ },
+    });
   } catch (err) {
     log(`Failed to generate zip for ${indexPath}`);
     throw new Error(`Failed to generate zip for ${indexPath}`, { cause: err });
