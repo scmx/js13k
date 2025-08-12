@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2022", // Latest major browser support
+    "module": "Node16", // Use Node16 module syntax
+    "moduleResolution": "node16",
+    "checkJs": true, // Enable type-checking for JavaScript files
+    "strict": true, // Enforce strict type-checking
+    "noImplicitAny": false, // Disallow implicit 'any' types
+    "noUnusedLocals": true, // Error on unused local variables
+    "noUnusedParameters": true, // Error on unused function parameters
+    "noImplicitReturns": true, // Ensure all code paths in a function return a value
+    "noFallthroughCasesInSwitch": true, // Prevent fallthrough errors in switch statements
+    "allowSyntheticDefaultImports": true, // For compatibility with some module systems
+    "noEmit": true, // Prevents any output files
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ] // Include DOM typings for browser environments
+  }
+}
