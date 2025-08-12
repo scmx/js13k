@@ -126,8 +126,7 @@ async function watchSource(name) {
       switch (event.eventType) {
         case "rename":
         case "change": {
-          log(`Rebuilding ${indexPath}`);
-          await buildSource(name);
+          buildSourceDebounced(name);
           break;
         }
         default: {
@@ -139,6 +138,16 @@ async function watchSource(name) {
   } catch (err) {
     log(`Failed to watch ${indexPath}`);
   }
+}
+
+let buildTimeout;
+/** @param {string} name */
+async function buildSourceDebounced(name) {
+  clearTimeout(buildTimeout);
+  buildTimeout = setTimeout(() => {
+    log(`Rebuilding ${name}`);
+    buildSource(name);
+  }, 200);
 }
 
 /** @param {string} name */
